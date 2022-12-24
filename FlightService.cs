@@ -1,82 +1,152 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using Newtonsoft.Json;
+﻿//using Cosmos.Data;
+//using Cosmos.ViewModels;
+//using Newtonsoft.Json;
+//using Route = Cosmos.Data.Route;
 
-namespace uptime.Services;
+//namespace Cosmos
+//{
+//    public static class FlightServices
+//    {
 
-public class FlightService
-{
-    HttpClient client = new HttpClient();
+//        public static void Seed(this IHost host)
+//        {
+//            using var scope = host.Services.CreateScope();
+//            using var context = scope.ServiceProvider.GetRequiredService<CosmosDataContext>();
+//            context.Database.EnsureCreated();
+//            _ = GetFlights(context, new HttpClient());
+//        }
 
-    static async Task Main(string[] args)
-    {
-        FlightService program = new FlightService();
-        await program.GetFlights();
-    }
 
-    private async Task GetFlights()
-    {
-        string response = await client.GetStringAsync("https://cosmos-odyssey.azurewebsites.net/api/v1.0/TravelPrices");
-        Schedule schedule = JsonConvert.DeserializeObject<Schedule>(response);
-        Console.WriteLine(schedule.id);
-        Console.WriteLine(schedule.validUntil);
-        Console.WriteLine();
-        foreach (Route route in schedule.legs)
-        {
-            RouteInfo routeInfo = route.routeinfo;
-            Console.WriteLine(routeInfo.from.name);
-            Console.WriteLine(routeInfo.to.name);
-            Console.WriteLine(routeInfo.distance);
-            foreach (Provider provider in route.providers)
-            {
-                Console.WriteLine(provider.company.name);
-                Console.WriteLine(provider.price);
-            }
-        }
-    }
-}
 
-class Schedule
-{
-    public string? id { get; set; }
-    public string? validUntil { get; set; }
-    public Route[]? legs { get; set; }
-}
+//        private static async Task GetFlights(CosmosDataContext context, HttpClient client)
+//        {
+//            string response = await client.GetStringAsync("https://cosmos-odyssey.azurewebsites.net/api/v1.0/TravelPrices");
+//            ScheduleGet? schedule = JsonConvert.DeserializeObject<ScheduleGet>(response);
 
-class Route
-{
-    public string? id { get; set; }
-    public RouteInfo? routeinfo { get; set; }
-    public Provider[]? providers { get; set; }
-}
+//            // Website is up
+//            if (schedule == null)
+//            {
+//                return;
+//            }
+//            Console.WriteLine(schedule.id);
 
-class RouteInfo
-{
-    public string? id { get; set; }
-    public Place? from { get; set; }
-    public Place? to { get; set; }
-    public long? distance { get; set; }
-}
-class Place
-{
-    public string? id { get; set; }
-    public string? name { get; set; }
-}
+//            PriceList? priceList = context.Pricelist.FirstOrDefault();
+//            Console.WriteLine("still here");
 
-class Provider
-{
-    public string? id { get; set; }
-    public Company? company { get; set; }
-    public double? price { get; set; }
-    public string? flightStart { get; set; }
-    public string? flightEnd { get; set; }
+//            // pricelist not already in db
+//            if (priceList != null)
+//            {
+//                return;
+//            }
+//            Console.WriteLine("mayne here");
 
-}
+//            context.Pricelist.Add(new PriceList
+//            {
+//                id = schedule.id,
+//                validUntil = DateTime.Parse(schedule.validUntil),
+//                dateAdded = DateTime.UtcNow
+//            });
+//            foreach (RouteGet route in schedule.legs)
+//            {
+//                RouteInfoGet routeinfoget = route.routeinfo;
+//                PlaceGet from = routeinfoget.from;
+//                PlaceGet to = routeinfoget.to;
 
-class Company
-{
-    public string? id { get; set; }
-    public string? name { get; set; }
-}
+//                context.Route.Add(new Route
+//                {
+//                    id = route.id,
+//                    priceListId = schedule.id
+//                });
+
+//                context.Place.Add(new Place
+//                {
+//                    id = from.id,
+//                    name = from.name,
+//                    routeInfoId = routeinfoget.id
+//                });
+
+//                context.Place.Add(new Place
+//                {
+//                    id = to.id,
+//                    name = to.name,
+//                    routeInfoId = routeinfoget.id
+//                });
+
+//                context.RouteInfo.Add(new RouteInfo
+//                {
+//                    id = routeinfoget.id,
+//                    distance = routeinfoget.distance,
+//                    routeId = route.id,
+//                    fromId = from.id,
+//                    toId = to.id
+//                });
+
+//                foreach (ProviderGet provider in route.providers)
+//                {   
+//                    CompanyGet companyget = provider.company;
+//                    context.Provider.Add(new Provider
+//                    {
+//                        id = provider.id,
+//                        price = provider.price,
+//                        flightStart = DateTime.Parse(provider.flightStart),
+//                        flightEnd = DateTime.Parse(provider.flightEnd),
+//                        companyId = companyget.id
+//                    });
+
+//                    context.Company.Add(new Company
+//                    {
+//                        id = companyget.id,
+//                        name = companyget.name
+//                    });
+//                }
+//            }
+            
+//            context.SaveChanges();
+//        }
+//    }
+
+
+
+//    class ScheduleGet
+//    {
+//        public string? id { get; set; }
+//        public string? validUntil { get; set; }
+//        public RouteGet[]? legs { get; set; }
+//    }
+
+//    class RouteGet
+//    {
+//        public string? id { get; set; }
+//        public RouteInfoGet? routeinfo { get; set; }
+//        public ProviderGet[]? providers { get; set; }
+//    }
+
+//    class RouteInfoGet
+//    {
+//        public string? id { get; set; }
+//        public PlaceGet? from { get; set; }
+//        public PlaceGet? to { get; set; }
+//        public long? distance { get; set; }
+//    }
+//    class PlaceGet
+//    {
+//        public string? id { get; set; }
+//        public string? name { get; set; }
+//    }
+
+//    class ProviderGet
+//    {
+//        public string? id { get; set; }
+//        public CompanyGet? company { get; set; }
+//        public double? price { get; set; }
+//        public string? flightStart { get; set; }
+//        public string? flightEnd { get; set; }
+
+//    }
+
+//    class CompanyGet
+//    {
+//        public string? id { get; set; }
+//        public string? name { get; set; }
+//    }
+//}

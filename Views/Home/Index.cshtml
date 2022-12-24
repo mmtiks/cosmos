@@ -1,0 +1,14 @@
+﻿@model List<Cosmos.ViewModels.PriceListView>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+@foreach(var priceList in Model)
+{
+    <h1>@priceList.id</h1>
+    <p>@priceList.validUntil</p>
+    <p>@priceList.dateAdded</p>
+}
+<form>id</form>
+<button type="button" onclick="location.href='@Url.Action("AddPriceList","Home")'">Refresh flights</button>
